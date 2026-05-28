@@ -49,8 +49,8 @@
 
 - [x] bot-definition.json の DID を実値に更新（`did:plc:kxwz5cz7o6g4jlmxh6doyfsm`）
 - [x] README.md / README-ja.md を bsaf-jma-bot 同等の構造で整備
-- [ ] git 初回コミット & プッシュ
-- [ ] kazahana 等の BSAF クライアントに本Botを登録テスト
+- [x] git 初回コミット & プッシュ（2026-05-28）
+- [x] kazahana に本Botを登録テスト（2026-05-28 完了、フィルタUI自動構築を確認）
 - [ ] VPWW55〜58 の実運用開始日を気象庁公式アナウンスで確認
 
 ## Phase 5 — 将来課題
