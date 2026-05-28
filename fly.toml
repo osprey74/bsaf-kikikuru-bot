@@ -1,0 +1,43 @@
+app            = "bsaf-kikikuru-bot"
+primary_region = "nrt"   # 東京リージョン
+
+[build]
+  dockerfile = "fly/Dockerfile"
+
+[env]
+  PORT      = "3000"
+  LOG_LEVEL = "info"
+
+[http_service]
+  internal_port        = 3000
+  force_https          = true
+  auto_stop_machines   = false   # 常時起動（ポーリング必須）
+  auto_start_machines  = true
+  min_machines_running = 1
+  # ⚠️ Bot はインメモリ状態（重複抑制・処理済みID）を持つため、
+  # 必ず 1 台運用にする（HA 化すると重複投稿の原因になる）。
+  # デプロイ後に `fly scale count 1 -a bsaf-kikikuru-bot` を実行すること。
+
+  [http_service.concurrency]
+    type       = "requests"
+    hard_limit = 25
+    soft_limit = 20
+
+# 再起動はレートリミット増幅を避けるため失敗時のみ・回数制限あり
+[[restart]]
+  policy  = "on-failure"
+  retries = 5
+
+[[vm]]
+  size   = "shared-cpu-1x"
+  memory = "256mb"
+
+[checks]
+  [checks.health]
+    grace_period = "10s"
+    interval     = "30s"
+    method       = "GET"
+    path         = "/health"
+    port         = 3000
+    timeout      = "5s"
+    type         = "http"

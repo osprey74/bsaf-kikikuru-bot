@@ -1,0 +1,42 @@
+{
+  "name": "bsaf-kikikuru-bot",
+  "version": "0.1.0",
+  "description": "BSAF-compliant JMA heavy rain / landslide / storm-surge / flood warning bot for Bluesky",
+  "type": "module",
+  "module": "src/index.ts",
+  "scripts": {
+    "dev": "bun --watch run src/index.ts",
+    "start": "bun run src/index.ts",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit",
+    "dry-run": "bun run src/dry-run.ts",
+    "test-post": "bun run src/test-post.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/osprey74/bsaf-kikikuru-bot.git"
+  },
+  "keywords": [
+    "bsaf",
+    "bluesky",
+    "jma",
+    "kikikuru",
+    "warning",
+    "bot"
+  ],
+  "author": "osprey74",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/osprey74/bsaf-kikikuru-bot/issues"
+  },
+  "homepage": "https://github.com/osprey74/bsaf-kikikuru-bot#readme",
+  "dependencies": {
+    "@atproto/api": "^0.20.5",
+    "fast-xml-parser": "^4.5.0",
+    "hono": "^4.6.0"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.1.13",
+    "typescript": "^5.6.0"
+  }
+}

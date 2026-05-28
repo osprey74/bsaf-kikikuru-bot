@@ -1,0 +1,91 @@
+{
+  "bsaf_schema": "1.0",
+  "updated_at": "2026-05-28T00:00:00Z",
+  "self_url": "https://raw.githubusercontent.com/osprey74/bsaf-kikikuru-bot/main/bot-definition.json",
+
+  "bot": {
+    "handle": "bsaf-kikikuru-bot.bsky.social",
+    "did": "did:plc:kxwz5cz7o6g4jlmxh6doyfsm",
+    "name": "キキクル防災情報Bot（非公式）",
+    "description": "気象庁の大雨警戒レベル情報（VPWW55〜58 / キキクル相当）をBSAF v1タグ付きで配信。Lv2（注意報）〜Lv5（特別警報）および解除を都道府県別に配信します。",
+    "source": "気象庁 防災情報XML（VPWW55〜58 大雨警戒レベル情報）",
+    "source_url": "https://www.data.jma.go.jp/developer/xml/feed/"
+  },
+
+  "filters": [
+    {
+      "tag": "type",
+      "label": "情報種別",
+      "options": [
+        { "value": "heavy-rain-warning",  "label": "大雨" },
+        { "value": "landslide-warning",   "label": "土砂災害" },
+        { "value": "storm-surge-warning", "label": "高潮" },
+        { "value": "flood-warning",       "label": "洪水・氾濫" }
+      ]
+    },
+    {
+      "tag": "value",
+      "label": "警戒レベル",
+      "options": [
+        { "value": "level2",    "label": "Lv.2 注意報" },
+        { "value": "level3",    "label": "Lv.3 警報" },
+        { "value": "level4",    "label": "Lv.4 危険警報" },
+        { "value": "level5",    "label": "Lv.5 特別警報" },
+        { "value": "cancelled", "label": "解除" }
+      ]
+    },
+    {
+      "tag": "target",
+      "label": "都道府県",
+      "options": [
+        { "value": "jp-hokkaido",  "label": "北海道" },
+        { "value": "jp-aomori",    "label": "青森県" },
+        { "value": "jp-iwate",     "label": "岩手県" },
+        { "value": "jp-miyagi",    "label": "宮城県" },
+        { "value": "jp-akita",     "label": "秋田県" },
+        { "value": "jp-yamagata",  "label": "山形県" },
+        { "value": "jp-fukushima", "label": "福島県" },
+        { "value": "jp-ibaraki",   "label": "茨城県" },
+        { "value": "jp-tochigi",   "label": "栃木県" },
+        { "value": "jp-gunma",     "label": "群馬県" },
+        { "value": "jp-saitama",   "label": "埼玉県" },
+        { "value": "jp-chiba",     "label": "千葉県" },
+        { "value": "jp-tokyo",     "label": "東京都" },
+        { "value": "jp-kanagawa",  "label": "神奈川県" },
+        { "value": "jp-niigata",   "label": "新潟県" },
+        { "value": "jp-toyama",    "label": "富山県" },
+        { "value": "jp-ishikawa",  "label": "石川県" },
+        { "value": "jp-fukui",     "label": "福井県" },
+        { "value": "jp-yamanashi", "label": "山梨県" },
+        { "value": "jp-nagano",    "label": "長野県" },
+        { "value": "jp-gifu",      "label": "岐阜県" },
+        { "value": "jp-shizuoka",  "label": "静岡県" },
+        { "value": "jp-aichi",     "label": "愛知県" },
+        { "value": "jp-mie",       "label": "三重県" },
+        { "value": "jp-shiga",     "label": "滋賀県" },
+        { "value": "jp-kyoto",     "label": "京都府" },
+        { "value": "jp-osaka",     "label": "大阪府" },
+        { "value": "jp-hyogo",     "label": "兵庫県" },
+        { "value": "jp-nara",      "label": "奈良県" },
+        { "value": "jp-wakayama",  "label": "和歌山県" },
+        { "value": "jp-tottori",   "label": "鳥取県" },
+        { "value": "jp-shimane",   "label": "島根県" },
+        { "value": "jp-okayama",   "label": "岡山県" },
+        { "value": "jp-hiroshima", "label": "広島県" },
+        { "value": "jp-yamaguchi", "label": "山口県" },
+        { "value": "jp-tokushima", "label": "徳島県" },
+        { "value": "jp-kagawa",    "label": "香川県" },
+        { "value": "jp-ehime",     "label": "愛媛県" },
+        { "value": "jp-kochi",     "label": "高知県" },
+        { "value": "jp-fukuoka",   "label": "福岡県" },
+        { "value": "jp-saga",      "label": "佐賀県" },
+        { "value": "jp-nagasaki",  "label": "長崎県" },
+        { "value": "jp-kumamoto",  "label": "熊本県" },
+        { "value": "jp-oita",      "label": "大分県" },
+        { "value": "jp-miyazaki",  "label": "宮崎県" },
+        { "value": "jp-kagoshima", "label": "鹿児島県" },
+        { "value": "jp-okinawa",   "label": "沖縄県" }
+      ]
+    }
+  ]
+}
