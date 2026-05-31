@@ -1,14 +1,14 @@
 {
   "bsaf_schema": "1.0",
-  "updated_at": "2026-05-28T00:00:00Z",
+  "updated_at": "2026-05-31T00:00:00Z",
   "self_url": "https://raw.githubusercontent.com/osprey74/bsaf-kikikuru-bot/main/bot-definition.json",
 
   "bot": {
     "handle": "bsaf-kikikuru-bot.bsky.social",
     "did": "did:plc:kxwz5cz7o6g4jlmxh6doyfsm",
-    "name": "キキクル防災情報Bot（非公式）",
-    "description": "気象庁の大雨警戒レベル情報（VPWW55〜58 / キキクル相当）をBSAF v1タグ付きで配信。Lv2（注意報）〜Lv5（特別警報）および解除を都道府県別に配信します。",
-    "source": "気象庁 防災情報XML（VPWW55〜58 大雨警戒レベル情報）",
+    "name": "気象警報・注意報Bot（非公式）",
+    "description": "気象庁の新気象警報・注意報（Ｒ０６）VPWW55〜61 を BSAF v1 タグ付きで配信。大雨・土砂・高潮・暴風・波浪・大雪・その他の各現象について、警戒レベル（Lv2〜Lv5）または警報級・注意報級・特別警報級および解除を都道府県別に配信します。",
+    "source": "気象庁 防災情報XML（VPWW55〜61 気象警報・注意報Ｒ０６）",
     "source_url": "https://www.data.jma.go.jp/developer/xml/feed/"
   },
 
@@ -17,21 +17,37 @@
       "tag": "type",
       "label": "情報種別",
       "options": [
-        { "value": "heavy-rain-warning",  "label": "大雨" },
-        { "value": "landslide-warning",   "label": "土砂災害" },
-        { "value": "storm-surge-warning", "label": "高潮" },
-        { "value": "flood-warning",       "label": "洪水・氾濫" }
+        { "value": "heavy-rain-warning",      "label": "大雨" },
+        { "value": "landslide-warning",       "label": "土砂災害" },
+        { "value": "storm-surge-warning",     "label": "高潮" },
+        { "value": "wind-warning",            "label": "暴風・暴風雪・強風" },
+        { "value": "wave-warning",            "label": "波浪" },
+        { "value": "snow-warning",            "label": "大雪" },
+        { "value": "thunderstorm-warning",    "label": "雷" },
+        { "value": "melting-snow-warning",    "label": "融雪" },
+        { "value": "dense-fog-warning",       "label": "濃霧" },
+        { "value": "dry-air-warning",         "label": "乾燥" },
+        { "value": "avalanche-warning",       "label": "なだれ" },
+        { "value": "low-temperature-warning", "label": "低温" },
+        { "value": "frost-warning",           "label": "霜" },
+        { "value": "icing-warning",           "label": "着氷" },
+        { "value": "snow-accretion-warning",  "label": "着雪" },
+        { "value": "flood-warning",           "label": "洪水（経過措置）" },
+        { "value": "other-warning",           "label": "その他" }
       ]
     },
     {
       "tag": "value",
-      "label": "警戒レベル",
+      "label": "警戒レベル・警報級",
       "options": [
-        { "value": "level2",    "label": "Lv.2 注意報" },
-        { "value": "level3",    "label": "Lv.3 警報" },
-        { "value": "level4",    "label": "Lv.4 危険警報" },
-        { "value": "level5",    "label": "Lv.5 特別警報" },
-        { "value": "cancelled", "label": "解除" }
+        { "value": "level2",          "label": "Lv.2 注意報（警戒レベル体系）" },
+        { "value": "level3",          "label": "Lv.3 警報（警戒レベル体系）" },
+        { "value": "level4",          "label": "Lv.4 危険警報（警戒レベル体系）" },
+        { "value": "level5",          "label": "Lv.5 特別警報（警戒レベル体系）" },
+        { "value": "advisory",        "label": "注意報級（暴風・波浪等）" },
+        { "value": "warning",         "label": "警報級（暴風・波浪等）" },
+        { "value": "special-warning", "label": "特別警報級（暴風・波浪等）" },
+        { "value": "cancelled",       "label": "解除" }
       ]
     },
     {

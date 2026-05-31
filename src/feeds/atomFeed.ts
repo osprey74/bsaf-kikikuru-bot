@@ -3,7 +3,7 @@
  * 気象庁防災情報XML Atom Feed 取得・パース
  *
  * フィード URL: https://www.data.jma.go.jp/developer/xml/feed/extra.xml
- *   └ 警報系（VPWW55〜58）は高頻度フィード(extra.xml)に含まれる
+ *   └ 警報系（VPWW55〜61）は高頻度フィード(extra.xml)に含まれる
  *
  * 出典: https://www.data.jma.go.jp/developer/xml/
  *
@@ -32,11 +32,18 @@ export interface AtomEntry {
 // 対象電文コード
 // ============================================================
 
+/**
+ * 新気象警報・注意報（Ｒ０６）VPWW55〜61 を全件監視する。
+ * 旧 VPWW54 / VXWW50 / VPNO50 は bsaf-jma-bot 側の経過措置パーサーで処理する。
+ */
 export const TARGET_CODES = new Set([
-  "VPWW55", // 大雨に関する警戒レベル情報（2026-05-28〜）
-  "VPWW56", // 土砂災害に関する警戒レベル情報
-  "VPWW57", // 高潮に関する警戒レベル情報
-  "VPWW58", // 洪水・氾濫に関する警戒レベル情報
+  "VPWW55", // 気象警報・注意報（Ｒ０６）（大雨）
+  "VPWW56", // 気象警報・注意報（Ｒ０６）（土砂）
+  "VPWW57", // 気象警報・注意報（Ｒ０６）（高潮）
+  "VPWW58", // 気象警報・注意報（Ｒ０６）（暴風）
+  "VPWW59", // 気象警報・注意報（Ｒ０６）（波浪）
+  "VPWW60", // 気象警報・注意報（Ｒ０６）（大雪）
+  "VPWW61", // 気象警報・注意報（Ｒ０６）（その他注意報）
 ]);
 
 export const FEED_URL = "https://www.data.jma.go.jp/developer/xml/feed/extra.xml";

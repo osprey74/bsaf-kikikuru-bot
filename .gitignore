@@ -5,3 +5,7 @@ node_modules/
 .DS_Store
 dist/
 .bun/
+
+# JMA spec working area (local-only reference: PDFs, code tables, sample XMLs, scripts)
+# See HANDOFF_redesign.md §7 for what this directory contains.
+jma-spec/

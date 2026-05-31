@@ -1,39 +1,36 @@
 /**
  * tests/warningState.test.ts
- * 重複抑制ステートのユニットテスト
+ * 重複抑制ステートの検証
  */
 
-import { describe, expect, test, beforeEach } from "bun:test";
+import { describe, test, expect, beforeEach } from "bun:test";
 import {
   isAlreadyPosted,
   markPosted,
   clearExpired,
-  size,
   _resetForTest,
+  size,
 } from "../src/state/warningState";
 
 describe("warningState", () => {
-  beforeEach(() => _resetForTest());
-
-  test("未投稿のキーは false", () => {
-    expect(isAlreadyPosted("heavy-rain:jp-tokyo:level4")).toBe(false);
+  beforeEach(() => {
+    _resetForTest();
   });
 
-  test("markPosted 後は true", () => {
-    markPosted("heavy-rain:jp-tokyo:level4");
-    expect(isAlreadyPosted("heavy-rain:jp-tokyo:level4")).toBe(true);
-  });
-
-  test("size はエントリ数を返す", () => {
+  test("初期状態は空", () => {
     expect(size()).toBe(0);
-    markPosted("a");
-    markPosted("b");
-    expect(size()).toBe(2);
+    expect(isAlreadyPosted("any-key")).toBe(false);
   });
 
-  test("clearExpired はウィンドウ内エントリを消さない", () => {
-    markPosted("recent");
+  test("markPosted した key は isAlreadyPosted=true", () => {
+    markPosted("wind:jp-tokyo:advisory");
+    expect(isAlreadyPosted("wind:jp-tokyo:advisory")).toBe(true);
+    expect(isAlreadyPosted("wind:jp-tokyo:warning")).toBe(false);
+  });
+
+  test("clearExpired は 30 分以内は残す", () => {
+    markPosted("k1");
     clearExpired();
-    expect(isAlreadyPosted("recent")).toBe(true);
+    expect(isAlreadyPosted("k1")).toBe(true);
   });
 });

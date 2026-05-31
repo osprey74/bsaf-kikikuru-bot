@@ -42,7 +42,8 @@ const PORT = Number(process.env["PORT"] ?? 3000);
 console.info("=".repeat(50));
 console.info("  bsaf-kikikuru-bot");
 console.info("  @bsaf-kikikuru-bot.bsky.social");
-console.info("  大雨警戒レベル情報 Lv2〜Lv5 BSAF配信");
+console.info("  気象警報・注意報（Ｒ０６）全現象 BSAF配信");
+console.info("  VPWW55-61（大雨/土砂/高潮/暴風/波浪/大雪/その他）");
 console.info("=".repeat(50));
 
 // ポーリング開始

@@ -8,9 +8,7 @@
     "dev": "bun --watch run src/index.ts",
     "start": "bun run src/index.ts",
     "test": "bun test",
-    "typecheck": "tsc --noEmit",
-    "dry-run": "bun run src/dry-run.ts",
-    "test-post": "bun run src/test-post.ts"
+    "typecheck": "tsc --noEmit"
   },
   "repository": {
     "type": "git",

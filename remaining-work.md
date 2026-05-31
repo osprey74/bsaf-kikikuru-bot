@@ -2,62 +2,92 @@
 
 > 完了したタスクは `[x]`、進行中は `[~]`、未着手は `[ ]` で表記する。
 
-## Phase 0 — リポジトリ初期化
+## Phase 0〜4 — 旧仕様（VPWW55-58＝警戒レベル情報 4 電文）に基づく初期実装
 
-- [x] GitHub リポジトリ作成
-- [x] README.md / CLAUDE.md 草稿
-- [x] fly.toml 草稿
-- [x] パーサ草稿（VPWW55〜58）
+旧設計に基づく初期実装、Fly.io デプロイ、kazahana 登録は完了済み。ただし VPWW58 を「洪水・氾濫」と誤認していたため、Bot は稼働するものの投稿生成 0 件の状態だった（2026-05-29〜31）。
 
-## Phase 1 — コア実装
+詳細履歴は [HANDOFF_redesign.md §1.1](HANDOFF_redesign.md) を参照。
 
-- [x] package.json / tsconfig.json / .env.example / .gitignore
-- [x] fly/Dockerfile（Bun ベース）
-- [x] src/bsaf/prefectures.ts（市町村コード→都道府県 target マッピング）
-- [x] src/parsers/heavyRainWarning.ts を Lv2〜Lv5＋解除に拡張
-- [x] src/bsaf/mapper.ts（都道府県×レベル単位の投稿生成・BSAF tags 配列）
-- [x] src/atproto/client.ts を `tags: string[]` 方式に書き換え
-- [x] src/state/warningState.ts（30 分重複抑制）
-- [x] src/poller.ts を新インタフェースに適合
-- [x] tests/heavyRainWarning.test.ts（bun:test 形式）
-- [x] tests/warningState.test.ts
-- [x] bot-definition.json（type / value / target=47都道府県）
-- [x] CLAUDE.md / README.md / README-ja.md 最終化
+## Phase R0 — 再設計（2026-05-31）
 
-## Phase 2 — ローカル検証
+- [x] JMA 一次資料の取得（`jma-spec/` 配下に保管）
+- [x] VPWW55-61 の正しい仕様確認（電文＝現象別の新気象警報・注意報Ｒ０６）
+- [x] 別表 3（Kind Code）/別表 5（Significancy Code）の完全マッピング取得
+- [x] 実電文サンプルの取得（VPWW55, 56, 58, 59, 61）
+- [x] 量的予想 Property 構造の実例確認
+- [x] HANDOFF_redesign.md 作成（仕様書・実装計画）
+- [x] 設計判断 6.1〜6.5 確定（中粒度 value、本文補足、量予想存在時のみ、複数投稿分解、府県+市町村集約）
 
-- [x] `bun install` 実行
-- [x] `bun test` で全テストパス（31/31）
-- [x] `bunx tsc --noEmit` で型エラーなし
-- [x] `src/dry-run.ts` 作成・実行 → 投稿テキスト＆BSAFタグを目視確認
-- [x] `src/test-post.ts` 作成（実投稿スクリプト）
-- [x] Bluesky テストアカウントで実投稿確認（2026-05-28 完了、Lv2 注意報サンプル投稿で6タグ表示確認）
+## Phase R1 — コア再実装
 
-## Phase 3 — Fly.io デプロイ
+- [x] 旧パーサー・マッパー・テスト・スクリプト削除（dry-run.ts, test-post.ts, heavyRainWarning.ts, mapper.ts, 旧テスト）
+- [x] `src/codes/kindCode.ts`（別表 3 完全実装、37 エントリ、Phenomenon と BSAF type 値マッピング含む）
+- [x] `src/codes/significancy.ts`（別表 5 完全実装、11 エントリ、深刻度 rank 付き）
+- [x] `src/feeds/atomFeed.ts` の TARGET_CODES を VPWW55-61 に拡張
+- [x] `src/parsers/r06Warning.ts`（VPWW55-61 共通パーサー、市町村等レベル Item 抽出、Significancy／量的予想／付加事項を構造化）
+- [x] `src/bsaf/r06Mapper.ts`（市町村等から都道府県別・現象別に集約、最深刻 Significancy 採用、value タグ判定、解除分解、量予想本文化）
+- [x] `src/poller.ts` を新パーサー／マッパーに繋ぎ込み（スキップロジック削除）
+- [x] `src/index.ts` の起動メッセージ更新
 
-- [x] Fly.io アプリ作成（`fly apps create bsaf-kikikuru-bot --org personal`）
-- [x] `fly secrets set BSKY_IDENTIFIER=bsaf-kikikuru-bot.bsky.social`
-- [x] `fly secrets set BSKY_PASSWORD=xxxx-xxxx-xxxx-xxxx`
-- [x] `fly deploy` で初回デプロイ
-- [x] HA 2 台運用を `fly scale count 1` で 1 台に固定（重複投稿防止）
-- [x] FEED_URL を `www.data.jma.go.jp` 系の現行URLへ修正（旧 `xml.kishou.go.jp` は Fly から 403）
-- [x] User-Agent ヘッダ追加（防御的措置）
-- [x] `fly logs` で起動・ポーリング動作確認（取得 0件 = 新電文未運用、稼働は正常）
-- [x] `/health` エンドポイント疎通確認（待機中）
+## Phase R2 — テスト
 
-## Phase 4 — 公開・連携
+- [x] `tests/codes.test.ts`（kindCode / significancy 基本検証、20 ケース）
+- [x] `tests/r06Warning.test.ts`（実電文 6 種に対するパーサー検証、15 ケース）
+- [x] `tests/r06Mapper.test.ts`（BsafPost 生成検証、12 ケース、文字数・タグ・dedupeKey 一意性）
+- [x] `tests/warningState.test.ts`（重複抑制基本検証）
+- [x] `tests/fixtures/` に実電文サンプル 6 件配置
 
-- [x] bot-definition.json の DID を実値に更新（`did:plc:kxwz5cz7o6g4jlmxh6doyfsm`）
-- [x] README.md / README-ja.md を bsaf-jma-bot 同等の構造で整備
-- [x] git 初回コミット & プッシュ（2026-05-28）
-- [x] kazahana に本Botを登録テスト（2026-05-28 完了、フィルタUI自動構築を確認）
-- [ ] VPWW55〜58 の実運用開始日を気象庁公式アナウンスで確認
+## Phase R3 — ローカル検証
 
-## Phase 5 — 将来課題
+- [x] `bun test` で全テストパス（47/47）
+- [x] `bun run typecheck` で型エラーなし
+- [x] 実生成投稿テキストの目視確認（全 6 サンプル、最長 165 字、300 字制限内）
+- [x] BSAF タグ 6 件の正しい付与確認
 
-- [ ] Lv1（早期注意情報 VPWP50）対応
+## Phase R4 — ドキュメント更新
+
+- [x] `bot-definition.json` を 17 種の type フィルタ・拡張 value フィルタに刷新
+- [x] `README.md` / `README-ja.md` を VPWW55-61 全現象配信仕様に書き換え
+- [x] `remaining-work.md`（本ファイル）刷新
+
+## Phase R5 — 本番デプロイ・検証（次フェーズ）
+
+- [ ] git コミット & プッシュ（v0.2.0 想定）
+- [ ] `fly deploy` で本番デプロイ
+- [ ] `fly logs` で 24 時間動作観察、投稿生成数とスキップ理由を検証
+- [ ] kazahana の Bot 定義キャッシュ更新確認（新 17 種フィルタ表示）
+- [ ] 旧 BSAF タグ（`flood-warning` 等）で投稿済みの過去投稿の取り扱い検討（残置 or 整理）
+
+## Phase R6 — 継続観測・季節要因サンプル取得
+
+季節要因により 2026-05-31 時点ではサンプルが取得できなかった電文タイプについて、出現時期到来後にサンプル取得・パーサー実機検証を行う。
+
+- [ ] **VPWW57（高潮）**: 台風シーズン（夏〜秋）に実電文サンプル取得
+  - 5 階層目 `Warning[@type="気象警報・注意報（高潮予報区間）"]` の挙動確認
+  - `AdditionalInfo/TidalWarningAddition` の構造確認
+  - 量的予想要素 `WaveHeight`（うちあげ高水位）／`TidalLevel`（潮位）／`EventPart` の出現確認
+  - パーサーテストフィクスチャ追加
+- [ ] **VPWW60（大雪）**: 冬季（12 月以降）に実電文サンプル取得
+  - `SnowfallDepth` の複数 type 属性（6/12/24 時間最大降雪量）並列出現の確認
+  - パーサーテストフィクスチャ追加
+- [ ] **VPWW55-57 の Lv3〜Lv5 発表時**: 警戒レベル体系の上位レベルの実電文サンプル取得
+  - `CriteriaPeriod`（Lv4 到達予想時間）の出現確認と本文反映の検討
+  - `Condition="氾濫発生"` 付き VPWW57 サンプルの確認
+
+## Phase R7 — bsaf-jma-bot の旧電文パーサー段階削除
+
+- [ ] kikikuru-bot 安定稼働 1 週間以上を確認
+- [ ] bsaf-jma-bot から `weatherWarning.ts` / `landslideWarning.ts` / `specialWarning.ts` パーサーを段階削除
+- [ ] 旧 BSAF タグ運用との整合性確認
+
+## Phase R8 — 将来課題
+
+- [ ] 氾濫情報対応（VXKOii / VXSUii）
+- [ ] Lv1 早期注意情報対応（VPFD61 / VPFW60）
+- [ ] VPWP50（時系列情報）対応
+- [ ] VPWS50（集約通報）対応
 - [ ] 永続化された重複抑制（SQLite / Fly Volume）
 - [ ] 投稿失敗時のリトライキュー
-- [ ] フィード取得間隔の最適化（現状10分。プロフィール再合意の上で短縮検討、気象庁推奨30〜60秒との兼ね合い）
-- [ ] 旧電文 VPWW53 系との並行運用期の重複排除設計
-- [ ] GitHub Pages 等にステータスダッシュボード設置
+- [ ] フィード取得間隔の最適化（現状 10 分）
+- [ ] CriteriaPeriod の Lv4 到達予想時間を本文反映
+- [ ] VPWW57 高潮予報区間の本文補足記載のさらなる充実

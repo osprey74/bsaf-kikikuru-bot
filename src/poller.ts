@@ -2,26 +2,23 @@
  * src/poller.ts
  * Atom Feed ポーリングループ
  *
- * 10分ごとに気象庁フィードをポーリングし、
- * 新着の大雨警戒レベル電文をBSAFタグ付きでBlueskyに投稿する。
+ * 10 分ごとに気象庁フィードをポーリングし、新着の VPWW55〜61
+ * （気象警報・注意報Ｒ０６）電文を BSAF タグ付きで Bluesky に投稿する。
  */
 
 import { fetchTargetEntries, fetchText } from "./feeds/atomFeed";
-import {
-  parseHeavyRainWarningXml,
-  hasAnyActiveWarning,
-} from "./parsers/heavyRainWarning";
-import { mapToBsafPosts } from "./bsaf/mapper";
+import { parseR06WarningXml } from "./parsers/r06Warning";
+import { mapToBsafPosts } from "./bsaf/r06Mapper";
 import { isAlreadyPosted, markPosted, clearExpired } from "./state/warningState";
 import { post as atpPost } from "./atproto/client";
 
-const POLL_INTERVAL_MS = 10 * 60 * 1000; // 10分（プロフィール記載・気象庁負荷配慮）
+const POLL_INTERVAL_MS = 10 * 60 * 1000; // 10 分（プロフィール記載・気象庁負荷配慮）
 
-/** セッション内処理済みエントリID（重複処理防止） */
+/** セッション内処理済みエントリ ID（重複処理防止） */
 const _processedIds = new Set<string>();
 
 // ============================================================
-// 1サイクルの処理
+// 1 サイクルの処理
 // ============================================================
 
 async function runCycle(): Promise<void> {
@@ -31,7 +28,7 @@ async function runCycle(): Promise<void> {
   try {
     entries = await fetchTargetEntries();
   } catch (e) {
-    console.error("[Poller] Feed取得失敗:", e);
+    console.error("[Poller] Feed 取得失敗:", e);
     return;
   }
 
@@ -41,7 +38,6 @@ async function runCycle(): Promise<void> {
   for (const entry of newEntries) {
     _processedIds.add(entry.id);
 
-    // 電文 XML 取得
     let xml: string;
     try {
       xml = await fetchText(entry.link);
@@ -50,25 +46,9 @@ async function runCycle(): Promise<void> {
       continue;
     }
 
-    // パース
-    const parsed = parseHeavyRainWarningXml(xml);
+    const parsed = parseR06WarningXml(xml);
     if (!parsed) continue;
 
-    // 投稿判定:
-    //   - 取消電文                → 投稿（解除）
-    //   - Lv2〜Lv5 発表中           → 投稿
-    //   - 部分解除（cancelledAreas）→ 投稿
-    //   - それ以外                 → スキップ
-    const isCancellation = parsed.infoType === "取消";
-    const hasActive      = hasAnyActiveWarning(parsed);
-    const hasCancelled   = parsed.cancelledAreas.length > 0;
-
-    if (!isCancellation && !hasActive && !hasCancelled) {
-      console.info(`[Poller] スキップ（発表なし）: ${entry.id}`);
-      continue;
-    }
-
-    // BSAFポスト生成・投稿
     const posts = mapToBsafPosts(parsed);
     if (posts.length === 0) {
       console.info(`[Poller] 生成ポストなし: ${entry.id}`);
@@ -91,7 +71,7 @@ async function runCycle(): Promise<void> {
     }
   }
 
-  // 処理済みID を直近 300 件に制限
+  // 処理済み ID を直近 300 件に制限
   if (_processedIds.size > 300) {
     const stale = [..._processedIds].slice(0, _processedIds.size - 300);
     stale.forEach((id) => _processedIds.delete(id));
@@ -103,10 +83,10 @@ async function runCycle(): Promise<void> {
 // ============================================================
 
 export function startPoller(): void {
-  const target = ["VPWW55", "VPWW56", "VPWW57", "VPWW58"].join(", ");
+  const target = ["VPWW55", "VPWW56", "VPWW57", "VPWW58", "VPWW59", "VPWW60", "VPWW61"].join(", ");
   console.info(`[Poller] 開始 — 対象: ${target}`);
   console.info(`[Poller] 間隔: ${POLL_INTERVAL_MS / 1000}秒`);
-  console.info("[Poller] ※Lv1（早期注意情報）は対象外（VPWP50で別途対応要）");
+  console.info("[Poller] 新気象警報・注意報（Ｒ０６）— 全現象配信モード");
 
   // 初回即時実行
   runCycle().catch(console.error);
