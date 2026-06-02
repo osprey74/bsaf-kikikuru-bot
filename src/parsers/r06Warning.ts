@@ -54,6 +54,24 @@ export interface QuantitativeForecast {
   condition?: string;
   /** 補助情報: 区域名（陸上/海上/内海/外海等） */
   areaName?: string;
+  /** Base/Time の値（ISO8601、例: "2026-06-01T19:00:00+09:00"）。高潮ピーク等で出現。 */
+  time?: string;
+}
+
+/** 警戒レベル到達予想期間（Property/CriteriaPeriod、Lv2-Lv3 で上位レベル到達見込み時に出現） */
+export interface CriteriaPeriod {
+  /** 期間の人間可読文（例: "１日１７時から２０時まで、警戒レベル４相当"） */
+  sentence: string;
+  /** 到達クラス名（例: "警戒レベル４相当"） */
+  criteriaClassName: string;
+  /** 到達クラスコード（別表 5、例: "41"） */
+  criteriaClassCode: string;
+  /** 開始時刻 ISO8601（例: "2026-06-01T17:00:00+09:00"） */
+  time: string;
+  /** 期間（ISO8601 duration、例: "PT3H"） */
+  duration: string;
+  /** どの Property に属するか（例: "高潮危険度"） */
+  propertyType: string;
 }
 
 /** 危険度（Significancy） */
@@ -82,6 +100,8 @@ export interface WarningKind {
   significancies: Significancy[];
   /** 量的予想（Property/[WindSpeedPart|WaveHeightPart|VisibilityPart|...]） */
   quantitative: QuantitativeForecast[];
+  /** 警戒レベル到達予想期間（Property/CriteriaPeriod） */
+  criteriaPeriods: CriteriaPeriod[];
 }
 
 /** 市町村等レベルの Warning Item */
@@ -235,18 +255,20 @@ function parseKind(kind: any): WarningKind | null {
   const propertyArr: any[] = kind.Property ?? [];
   const significancies: Significancy[] = [];
   const quantitative: QuantitativeForecast[] = [];
+  const criteriaPeriods: CriteriaPeriod[] = [];
 
   for (const prop of propertyArr) {
-    extractFromProperty(prop, significancies, quantitative);
+    extractFromProperty(prop, significancies, quantitative, criteriaPeriods);
   }
 
-  return { name, code, status, additions, significancies, quantitative };
+  return { name, code, status, additions, significancies, quantitative, criteriaPeriods };
 }
 
 function extractFromProperty(
   prop: any,
   outSig: Significancy[],
-  outQuant: QuantitativeForecast[]
+  outQuant: QuantitativeForecast[],
+  outCriteria: CriteriaPeriod[],
 ): void {
   const propertyType = String(prop.Type ?? "");
 
@@ -277,6 +299,20 @@ function extractFromProperty(
         outSig.push(sig);
       }
     }
+  }
+
+  // ── CriteriaPeriod（警戒レベル到達予想期間） ──
+  if (prop.CriteriaPeriod?.Base) {
+    const base = prop.CriteriaPeriod.Base;
+    const cls = base.CriteriaClass ?? {};
+    outCriteria.push({
+      sentence:          String(base.Sentence ?? ""),
+      criteriaClassName: String(cls.Name ?? ""),
+      criteriaClassCode: String(cls.Code ?? ""),
+      time:              String(base.Time ?? ""),
+      duration:          String(base.Duration ?? ""),
+      propertyType,
+    });
   }
 
   // ── 量的予想各種 ──
@@ -315,15 +351,17 @@ function collectQuantitative(
   if (!base) return;
 
   const nsKey = `jmx_eb:${elementName}`;
+  const baseTime = String(base.Time ?? "") || undefined;
 
   // Base 直下パターン
-  pushFromHolder(base, nsKey, propertyType, undefined, out);
+  pushFromHolder(base, nsKey, propertyType, undefined, baseTime, out);
 
   // Base/Local[] パターン
   const localArr: any[] = base.Local ?? [];
   for (const local of localArr) {
     const areaName = String(local.AreaName ?? "") || undefined;
-    pushFromHolder(local, nsKey, propertyType, areaName, out);
+    const localTime = String(local.Time ?? "") || baseTime;
+    pushFromHolder(local, nsKey, propertyType, areaName, localTime, out);
   }
 }
 
@@ -332,6 +370,7 @@ function pushFromHolder(
   nsKey: string,
   propertyType: string,
   areaName: string | undefined,
+  time: string | undefined,
   out: QuantitativeForecast[]
 ): void {
   const el = holder[nsKey];
@@ -359,6 +398,7 @@ function pushFromHolder(
     const cond = attrs["@_condition"];
     if (cond) q.condition = String(cond);
     if (areaName) q.areaName = areaName;
+    if (time) q.time = time;
     out.push(q);
   }
 }

@@ -111,6 +111,81 @@ describe("VPWW58（暴風）— 解除電文", () => {
   });
 });
 
+describe("VPWW57（高潮）— 南城市 Lv2 高潮注意報", () => {
+  const xml = load("vpww57_storm-surge_lv2.xml");
+  const parsed = parseR06WarningXml(xml);
+
+  test("Control Title に「高潮」", () => {
+    expect(parsed).not.toBeNull();
+    expect(parsed!.controlTitle).toContain("高潮");
+  });
+
+  test("南城市に レベル2高潮注意報（code=19）と Significancy=21（高潮危険度）", () => {
+    const nanjo = parsed!.municipalityItems.find((i) => i.areaName === "南城市");
+    expect(nanjo).toBeDefined();
+    const kind = nanjo!.kinds.find((k) => k.code === "19");
+    expect(kind).toBeDefined();
+    expect(kind!.name).toBe("レベル２高潮注意報");
+    expect(kind!.status).toBe("発表");
+    const sig = kind!.significancies.find((s) => s.code === "21");
+    expect(sig).toBeDefined();
+    expect(sig!.type).toBe("高潮危険度");
+  });
+
+  test("量的予想に 高潮基準超過 / 高潮ピーク の 2 種の潮位（2.0m）が並列で出現", () => {
+    const nanjo = parsed!.municipalityItems.find((i) => i.areaName === "南城市")!;
+    const kind = nanjo.kinds.find((k) => k.code === "19")!;
+    const over = kind.quantitative.find((q) => q.propertyType === "高潮基準超過");
+    const peak = kind.quantitative.find((q) => q.propertyType === "高潮ピーク");
+    expect(over).toBeDefined();
+    expect(peak).toBeDefined();
+    expect(over!.attrType).toBe("潮位");
+    expect(over!.value).toBe("2.0");
+    expect(over!.unit).toBe("m");
+    expect(peak!.attrType).toBe("潮位");
+    expect(peak!.value).toBe("2.0");
+  });
+
+  test("各潮位 Quantitative に Base/Time が time として取得される", () => {
+    const nanjo = parsed!.municipalityItems.find((i) => i.areaName === "南城市")!;
+    const kind = nanjo.kinds.find((k) => k.code === "19")!;
+    const over = kind.quantitative.find((q) => q.propertyType === "高潮基準超過")!;
+    const peak = kind.quantitative.find((q) => q.propertyType === "高潮ピーク")!;
+    expect(over.time).toBe("2026-06-01T17:00:00+09:00");
+    expect(peak.time).toBe("2026-06-01T19:00:00+09:00");
+  });
+
+  test("CriteriaPeriod（Lv4 到達予想期間）が抽出される", () => {
+    const nanjo = parsed!.municipalityItems.find((i) => i.areaName === "南城市")!;
+    const kind = nanjo.kinds.find((k) => k.code === "19")!;
+    expect(kind.criteriaPeriods.length).toBeGreaterThan(0);
+    const cp = kind.criteriaPeriods[0];
+    expect(cp.criteriaClassCode).toBe("41");
+    expect(cp.criteriaClassName).toBe("警戒レベル４相当");
+    expect(cp.time).toBe("2026-06-01T17:00:00+09:00");
+    expect(cp.duration).toBe("PT3H");
+    expect(cp.sentence).toContain("警戒レベル４相当");
+    expect(cp.propertyType).toBe("高潮危険度");
+  });
+});
+
+describe("VPWW57（高潮）— 解除電文（南城市）", () => {
+  const xml = load("vpww57_storm-surge_cancellation.xml");
+  const parsed = parseR06WarningXml(xml);
+
+  test("通常電文としてパースされる", () => {
+    expect(parsed).not.toBeNull();
+    expect(parsed!.controlTitle).toContain("高潮");
+  });
+
+  test("南城市に Status=解除 の Kind が含まれる", () => {
+    const nanjo = parsed!.municipalityItems.find((i) => i.areaName === "南城市");
+    expect(nanjo).toBeDefined();
+    const cancelled = nanjo!.kinds.find((k) => k.status === "解除" && k.code === "19");
+    expect(cancelled).toBeDefined();
+  });
+});
+
 describe("VPWW59（波浪）— 八丈町 波浪注意報", () => {
   const xml = load("vpww59_wave_advisory.xml");
   const parsed = parseR06WarningXml(xml);

@@ -45,9 +45,16 @@ describe("VPWW55 → BsafPost", () => {
   test("投稿本文に「大雨」「警戒レベル」「対象市町村」が含まれる", () => {
     const p = posts.find((p) => p.dedupeKey === "heavy-rain:jp-hokkaido:level2")!;
     expect(p.text).toContain("大雨");
-    // Significancy/Name は XML 上は全角数字（"警戒レベル２"）。レベル数字無しで部分一致確認。
-    expect(p.text).toContain("警戒レベル");
+    // 半角化により「警戒レベル2」になる
+    expect(p.text).toContain("警戒レベル2");
     expect(p.text).toContain("対象市町村");
+  });
+
+  test("ヘッダー行が Lv2 アイコン 🟨 で始まり、本文は半角数字", () => {
+    const p = posts.find((p) => p.dedupeKey === "heavy-rain:jp-hokkaido:level2")!;
+    expect(p.text.startsWith("🟨【")).toBe(true);
+    // 全角数字が残っていないこと
+    expect(/[０-９]/.test(p.text)).toBe(false);
   });
 });
 
@@ -73,12 +80,58 @@ describe("VPWW58 → BsafPost", () => {
     expect(p!.text.length).toBeLessThanOrEqual(300);
   });
 
-  test("解除電文: 北海道 暴風 解除の投稿が生成される", () => {
+  test("レベル無し現象（advisory）はヘッダー行に ⚠️ が付く", () => {
+    const posts = parseAndMap("vpww58_wind_advisory.xml");
+    const p = posts.find((p) => p.dedupeKey === "wind:jp-tokyo:advisory")!;
+    expect(p.text.startsWith("⚠️【")).toBe(true);
+  });
+
+  test("解除電文: 北海道 暴風 解除の投稿が生成され、ヘッダーにアイコンが付かない", () => {
     const posts = parseAndMap("vpww58_wind_cancellation.xml");
     const p = posts.find((p) => p.dedupeKey === "wind:jp-hokkaido:cancelled");
     expect(p).toBeDefined();
     expect(p!.text).toContain("解除");
+    expect(p!.text.startsWith("【")).toBe(true);
     expect(p!.tags).toContain("value:cancelled");
+  });
+});
+
+describe("VPWW57 → BsafPost", () => {
+  test("発表電文: 沖縄 Lv2 高潮注意報の投稿が生成され、CriteriaPeriod・潮位 2 ラベルが本文に反映される", () => {
+    const posts = parseAndMap("vpww57_storm-surge_lv2.xml");
+    const p = posts.find((p) => p.dedupeKey === "storm-surge:jp-okinawa:level2");
+    expect(p).toBeDefined();
+    expect(p!.tags).toContain("type:storm-surge-warning");
+    expect(p!.tags).toContain("value:level2");
+    expect(p!.tags).toContain("target:jp-okinawa");
+
+    // ヘッダー行に Lv2 アイコン 🟨
+    expect(p!.text.startsWith("🟨【")).toBe(true);
+
+    // 警戒レベル到達予想（CriteriaPeriod）— 半角化されている
+    expect(p!.text).toContain("到達予想");
+    expect(p!.text).toContain("警戒レベル4相当");
+
+    // 潮位 2 ラベル書き分け
+    expect(p!.text).toContain("警報級到達時の潮位 2.0m");
+    expect(p!.text).toContain("最高潮位 2.0m");
+    expect(p!.text).toContain("1日17時頃到達");
+    expect(p!.text).toContain("1日19時頃ピーク");
+
+    // 全角数字が残っていないこと
+    expect(/[０-９]/.test(p!.text)).toBe(false);
+
+    expect(p!.text.length).toBeLessThanOrEqual(300);
+  });
+
+  test("解除電文: 沖縄 高潮 解除の投稿が生成される（アイコンなし）", () => {
+    const posts = parseAndMap("vpww57_storm-surge_cancellation.xml");
+    const p = posts.find((p) => p.dedupeKey === "storm-surge:jp-okinawa:cancelled");
+    expect(p).toBeDefined();
+    expect(p!.text).toContain("解除");
+    expect(p!.text.startsWith("【")).toBe(true);
+    expect(p!.tags).toContain("value:cancelled");
+    expect(p!.tags).toContain("type:storm-surge-warning");
   });
 });
 
@@ -134,6 +187,7 @@ describe("重複抑制キーの一意性", () => {
     const all = [
       ...parseAndMap("vpww55_heavy-rain_lv2.xml"),
       ...parseAndMap("vpww56_landslide_lv2.xml"),
+      ...parseAndMap("vpww57_storm-surge_lv2.xml"),
       ...parseAndMap("vpww58_wind_advisory.xml"),
       ...parseAndMap("vpww59_wave_advisory.xml"),
       ...parseAndMap("vpww61_thunder-fog.xml"),

@@ -16,6 +16,7 @@ import type {
   MunicipalityWarningItem,
   Significancy,
   QuantitativeForecast,
+  CriteriaPeriod,
 } from "../parsers/r06Warning";
 import {
   lookupKindCode,
@@ -64,6 +65,8 @@ interface PhenomenonAggregate {
   additions: string[];
   /** 採用された Kind の量的予想 */
   quantitative: QuantitativeForecast[];
+  /** 採用された Kind の警戒レベル到達予想期間（Sentence 重複は除外） */
+  criteriaPeriods: CriteriaPeriod[];
 }
 
 /** 解除集計（同一都道府県・同一現象でいずれかの市町村が解除に該当） */
@@ -81,7 +84,7 @@ interface CancellationAggregate {
 
 const MAX_MUNICIPALITY_LIST = 8;
 
-/** value タグ → 投稿ヘッダー絵文字＋ラベル */
+/** value タグ → 投稿ヘッダー絵文字＋ラベル（significancy 欠落時の本文補助に使用） */
 const VALUE_HEADER: Record<Exclude<BsafValue, null>, string> = {
   "level5":          "🚨 警戒レベル5",
   "level4":          "⚠️ 警戒レベル4",
@@ -91,6 +94,26 @@ const VALUE_HEADER: Record<Exclude<BsafValue, null>, string> = {
   "warning":         "🟡 警報",
   "advisory":        "⚪ 注意報",
   "cancelled":       "⬇️ 解除",
+};
+
+/**
+ * value タグ → タイトル枠の前に置くカラーアイコン。
+ *
+ * 設計:
+ * - 警戒レベル相当情報（大雨・土砂・高潮・洪水）は Lv2-Lv5 に対応する四角アイコン
+ * - 警戒レベル体系外の警報・注意報（暴風・波浪・大雪・雷他）は ⚠️
+ * - 特別警報は ⚠️ より強い 🚨 で最大警戒を表現
+ * - 解除は視認性確保のため敢えてアイコンを付けない（情報密度を下げる）
+ */
+const VALUE_ICON: Record<Exclude<BsafValue, null>, string> = {
+  "level5":          "⬛",
+  "level4":          "🟪",
+  "level3":          "🟥",
+  "level2":          "🟨",
+  "special-warning": "🚨",
+  "warning":         "⚠️",
+  "advisory":        "⚠️",
+  "cancelled":       "",
 };
 
 const SOURCE_LINE = "出典: 気象庁 https://www.jma.go.jp/bosai/warning/";
@@ -206,6 +229,7 @@ function classifyAndAggregate(
       municipalityNames: [item.areaName],
       additions: [...kind.additions],
       quantitative: [...kind.quantitative],
+      criteriaPeriods: [...kind.criteriaPeriods],
     });
   } else {
     // 既存と比較し、より深刻な value のときに代表を入れ替える
@@ -215,6 +239,7 @@ function classifyAndAggregate(
       existing.significancy = significancy ?? null;
       existing.additions = [...kind.additions];
       existing.quantitative = [...kind.quantitative];
+      existing.criteriaPeriods = [...kind.criteriaPeriods];
     }
     if (!existing.municipalityNames.includes(item.areaName)) {
       existing.municipalityNames.push(item.areaName);
@@ -286,18 +311,27 @@ function buildActivePost(
   timeUtc: string,
 ): BsafPost {
   const header = VALUE_HEADER[agg.value];
+  const icon = VALUE_ICON[agg.value];
   const phenomLabel = PHENOMENON_LABEL[agg.phenomenon];
   const muniCount = agg.municipalityNames.length;
   const muniList = formatMunicipalityList(agg.municipalityNames);
 
   const lines: string[] = [];
-  lines.push(`【${phenomLabel}警報・注意報】${agg.representativeKindName}`);
+  lines.push(`${icon}【${phenomLabel}警報・注意報】${agg.representativeKindName}`);
   lines.push("");
   lines.push(`${agg.prefecture.name}の${muniCount}市町村に${agg.representativeKindName}が発表されました。`);
   if (agg.significancy) {
     lines.push(`レベル：${agg.significancy.name}`);
   } else {
     lines.push(`レベル：${header.replace(/^\S+\s*/, "")}`);
+  }
+
+  // 警戒レベル到達予想（CriteriaPeriod）— 存在時のみ
+  const criteriaLines = formatCriteriaPeriods(agg.criteriaPeriods);
+  if (criteriaLines.length > 0) {
+    lines.push("");
+    lines.push("到達予想:");
+    for (const c of criteriaLines) lines.push(c);
   }
 
   // 量的予想セクション（存在時のみ）
@@ -324,7 +358,7 @@ function buildActivePost(
   });
 
   return {
-    text:      lines.join("\n"),
+    text:      normalizeBodyText(lines.join("\n")),
     tags,
     dedupeKey: `${agg.phenomenon}:${agg.prefecture.target}:${agg.value}`,
   };
@@ -355,10 +389,19 @@ function buildCancellationPost(
   });
 
   return {
-    text:      lines.join("\n"),
+    text:      normalizeBodyText(lines.join("\n")),
     tags,
     dedupeKey: `${agg.phenomenon}:${agg.prefecture.target}:cancelled`,
   };
+}
+
+/**
+ * 投稿本文の全角数字を半角に正規化する。
+ * 電文ママの「警戒レベル２」「１日１７時から…」等は半角の方が可読性が高いため。
+ * URL・タグはこの関数を通さないので影響なし。
+ */
+function normalizeBodyText(s: string): string {
+  return s.replace(/[０-９]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0xFEE0));
 }
 
 // ============================================================
@@ -401,8 +444,21 @@ function formatQuantitative(
     lines.push(`・${area}${q.attrType} ${q.value}${q.unit}`);
   }
 
-  // 潮位（VPWW57）
-  for (const q of quant.filter((q) => q.attrType === "潮位" || q.attrType === "最高潮位")) {
+  // 潮位（VPWW57）— Property/Type で「高潮基準超過」「高潮ピーク」を書き分ける
+  for (const q of quant.filter((q) => q.propertyType === "高潮基準超過" && (q.attrType === "潮位" || q.attrType === "最高潮位"))) {
+    const area = q.areaName ? `[${q.areaName}] ` : "";
+    const timeHint = formatJstTimeHint(q.time);
+    const suffix = timeHint ? `（${timeHint}頃到達）` : "";
+    lines.push(`・${area}警報級到達時の潮位 ${q.value}${q.unit}${suffix}`);
+  }
+  for (const q of quant.filter((q) => q.propertyType === "高潮ピーク" && (q.attrType === "潮位" || q.attrType === "最高潮位"))) {
+    const area = q.areaName ? `[${q.areaName}] ` : "";
+    const timeHint = formatJstTimeHint(q.time);
+    const suffix = timeHint ? `（${timeHint}頃ピーク）` : "";
+    lines.push(`・${area}最高潮位 ${q.value}${q.unit}${suffix}`);
+  }
+  // 上記 propertyType が空のレガシー互換: propertyType 未指定で attrType="潮位" のものを救済
+  for (const q of quant.filter((q) => !q.propertyType && (q.attrType === "潮位" || q.attrType === "最高潮位"))) {
     const area = q.areaName ? `[${q.areaName}] ` : "";
     lines.push(`・${area}${q.attrType} ${q.value}${q.unit}`);
   }
@@ -441,6 +497,35 @@ function formatQuantitative(
   }
 
   return lines;
+}
+
+/**
+ * CriteriaPeriod（警戒レベル到達予想期間）を本文行に整形する。
+ * 同一 Sentence は重複除去。Sentence は電文が全角数字を含んでいてもそのまま使う
+ * （仕様準拠の自然文を優先）。
+ */
+function formatCriteriaPeriods(periods: CriteriaPeriod[]): string[] {
+  if (periods.length === 0) return [];
+  const seen = new Set<string>();
+  const lines: string[] = [];
+  for (const p of periods) {
+    if (!p.sentence) continue;
+    if (seen.has(p.sentence)) continue;
+    seen.add(p.sentence);
+    lines.push(`・${p.sentence}`);
+  }
+  return lines;
+}
+
+/**
+ * ISO8601 文字列から「N日HH時」相当の簡潔な JST 時刻ヒントを返す。
+ * 文字列を直接読むだけで、タイムゾーン変換は行わない（電文の Time は +09:00 固定のため）。
+ */
+function formatJstTimeHint(iso: string | undefined): string {
+  if (!iso) return "";
+  const m = iso.match(/-(\d{2})T(\d{2}):/);
+  if (!m) return "";
+  return `${parseInt(m[1], 10)}日${parseInt(m[2], 10)}時`;
 }
 
 // ============================================================
