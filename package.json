@@ -1,6 +1,6 @@
 {
   "name": "bsaf-kikikuru-bot",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "BSAF-compliant JMA heavy rain / landslide / storm-surge / flood warning bot for Bluesky",
   "type": "module",
   "module": "src/index.ts",

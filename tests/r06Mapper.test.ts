@@ -50,9 +50,9 @@ describe("VPWW55 → BsafPost", () => {
     expect(p.text).toContain("対象市町村");
   });
 
-  test("ヘッダー行が Lv2 アイコン 🟨 で始まり、本文は半角数字", () => {
+  test("ヘッダー行が Lv2 メーター 🟨🟨⬜⬜⬜ で始まり、本文は半角数字", () => {
     const p = posts.find((p) => p.dedupeKey === "heavy-rain:jp-hokkaido:level2")!;
-    expect(p.text.startsWith("🟨【")).toBe(true);
+    expect(p.text.startsWith("🟨🟨⬜⬜⬜【")).toBe(true);
     // 全角数字が残っていないこと
     expect(/[０-９]/.test(p.text)).toBe(false);
   });
@@ -105,8 +105,8 @@ describe("VPWW57 → BsafPost", () => {
     expect(p!.tags).toContain("value:level2");
     expect(p!.tags).toContain("target:jp-okinawa");
 
-    // ヘッダー行に Lv2 アイコン 🟨
-    expect(p!.text.startsWith("🟨【")).toBe(true);
+    // ヘッダー行に Lv2 メーター 🟨🟨⬜⬜⬜
+    expect(p!.text.startsWith("🟨🟨⬜⬜⬜【")).toBe(true);
 
     // 警戒レベル到達予想（CriteriaPeriod）— 半角化されている
     expect(p!.text).toContain("到達予想");
