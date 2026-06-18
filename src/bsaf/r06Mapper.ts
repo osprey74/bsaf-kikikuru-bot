@@ -318,7 +318,19 @@ function buildActivePost(
   const muniList = formatMunicipalityList(agg.municipalityNames);
 
   const lines: string[] = [];
-  lines.push(`${icon}【${phenomLabel}警報・注意報】${agg.representativeKindName}`);
+  // 警戒レベル相当（level2-5）はアイコンが 4-5 マスで長くなるため、
+  // 警報種別ラベルの直後で改行し、スマホ画面での自動折り返しを回避する。
+  const isLeveledValue =
+    agg.value === "level2" ||
+    agg.value === "level3" ||
+    agg.value === "level4" ||
+    agg.value === "level5";
+  if (isLeveledValue) {
+    lines.push(`${icon}【${phenomLabel}警報・注意報】`);
+    lines.push(agg.representativeKindName);
+  } else {
+    lines.push(`${icon}【${phenomLabel}警報・注意報】${agg.representativeKindName}`);
+  }
   lines.push("");
   lines.push(`${agg.prefecture.name}の${muniCount}市町村に${agg.representativeKindName}が発表されました。`);
   if (agg.significancy) {
