@@ -35,6 +35,7 @@
         { "value": "flood-warning",           "label": "洪水（指定河川洪水予報）" },
         { "value": "linear-rainband-warning", "label": "線状降水帯" },
         { "value": "significant-snowfall-warning", "label": "顕著な大雪" },
+        { "value": "typhoon",                 "label": "台風" },
         { "value": "other-warning",           "label": "その他" }
       ]
     },
@@ -49,7 +50,11 @@
         { "value": "advisory",        "label": "注意報級（暴風・波浪等）" },
         { "value": "warning",         "label": "警報級（暴風・波浪等）" },
         { "value": "special-warning", "label": "特別警報級（暴風・波浪等）" },
-        { "value": "cancelled",       "label": "解除" }
+        { "value": "cancelled",       "label": "解除" },
+        { "value": "violent",         "label": "台風: 猛烈な" },
+        { "value": "very-strong",     "label": "台風: 非常に強い" },
+        { "value": "strong",          "label": "台風: 強い" },
+        { "value": "tropical-storm",  "label": "台風: それ以外" }
       ]
     },
     {
@@ -102,7 +107,8 @@
         { "value": "jp-oita",      "label": "大分県" },
         { "value": "jp-miyazaki",  "label": "宮崎県" },
         { "value": "jp-kagoshima", "label": "鹿児島県" },
-        { "value": "jp-okinawa",   "label": "沖縄県" }
+        { "value": "jp-okinawa",   "label": "沖縄県" },
+        { "value": "jp",           "label": "全国（台風等）" }
       ]
     }
   ]

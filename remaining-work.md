@@ -106,7 +106,8 @@
 - [x] 線状降水帯・顕著な大雪（VPBS50 府県気象防災速報）新設 — `parsers/bosaiReport.ts` / `bsaf/bosaiMapper.ts`、`type:linear-rainband-warning`（直前予測=level4/発生=level5）・`type:significant-snowfall-warning`（level4）（2026-08-01 実装・テスト追加）
   - [ ] 記録的短時間大雨サブ種別の有効化 — JMABot から VPOA50 を移管する際に実施（現状は二重投稿回避のためスキップ）
   - [ ] 顕著な大雪・線状降水帯「発生」の実電文サンプル取得（冬季・発生時、現状フィクスチャなし）
-- [ ] 台風情報（進路・予報 VPTW60 ／ 暴風域に入る確率 VPTA50）新設
+- [x] 台風情報（VPTW60 台風解析・予報）新設 — `parsers/typhoon.ts` / `bsaf/typhoonMapper.ts`、`type:typhoon`・`value:`強さ階級（violent/very-strong/strong/tropical-storm）・`target:jp`（全国）（2026-08-01 実装・テスト追加）
+  - [ ] 暴風域に入る確率（VPTA50）新設 — 見送り中（1.8MB・全市町村時系列）
 - [ ] 気象情報（府県 VPFJ50 ／ 地方 VPCJ50 ／ 全般 VPZJ50）新設 — 警報前段の見通し
 - [ ] 熱中症警戒アラート（VPFT50）新設（要判断・高頻度）
 - [ ] 竜巻注意情報（VPHW50/51）を JMABot から移管

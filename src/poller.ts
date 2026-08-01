@@ -13,6 +13,8 @@ import { parseFloodForecastXml } from "./parsers/floodForecast";
 import { mapFloodToBsafPosts } from "./bsaf/floodMapper";
 import { parseBosaiReportXml } from "./parsers/bosaiReport";
 import { mapBosaiToBsafPosts } from "./bsaf/bosaiMapper";
+import { parseTyphoonXml } from "./parsers/typhoon";
+import { mapTyphoonToBsafPosts } from "./bsaf/typhoonMapper";
 import type { BsafPost } from "./bsaf/r06Mapper";
 import { isAlreadyPosted, markPosted, clearExpired } from "./state/warningState";
 import { post as atpPost } from "./atproto/client";
@@ -62,6 +64,10 @@ async function runCycle(): Promise<void> {
       const parsed = parseBosaiReportXml(xml);
       if (!parsed) continue;
       posts = mapBosaiToBsafPosts(parsed);
+    } else if (code === "VPTW60") {
+      const parsed = parseTyphoonXml(xml);
+      if (!parsed) continue;
+      posts = mapTyphoonToBsafPosts(parsed);
     } else {
       const parsed = parseR06WarningXml(xml);
       if (!parsed) continue;
@@ -101,10 +107,10 @@ async function runCycle(): Promise<void> {
 // ============================================================
 
 export function startPoller(): void {
-  const target = ["VPWW55", "VPWW56", "VPWW57", "VPWW58", "VPWW59", "VPWW60", "VPWW61", "VXKO(指定河川洪水予報)", "VPBS50(気象防災速報)"].join(", ");
+  const target = ["VPWW55", "VPWW56", "VPWW57", "VPWW58", "VPWW59", "VPWW60", "VPWW61", "VXKO(指定河川洪水予報)", "VPBS50(気象防災速報)", "VPTW60(台風情報)"].join(", ");
   console.info(`[Poller] 開始 — 対象: ${target}`);
   console.info(`[Poller] 間隔: ${POLL_INTERVAL_MS / 1000}秒`);
-  console.info("[Poller] 新気象警報・注意報（Ｒ０６）＋指定河川洪水予報＋気象防災速報 — 全現象配信モード");
+  console.info("[Poller] 新気象警報・注意報（Ｒ０６）＋指定河川洪水予報＋気象防災速報＋台風情報 — 全現象配信モード");
 
   // 初回即時実行
   runCycle().catch(console.error);
