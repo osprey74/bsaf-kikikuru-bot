@@ -41,8 +41,11 @@ describe("VPFJ50 → BsafPost", () => {
     expect(p.tags.find((t) => t.startsWith("time:"))).toBeDefined();
   });
 
+  test("ヘッダーに都道府県名を含む（本文が県名で始まらない場合の欠落防止）", () => {
+    expect(p.text).toContain("【岩手県気象情報】（大雨・落雷）");
+  });
+
   test("本文に見出し種別・出典を含み 300 字以内・全角数字正規化", () => {
-    expect(p.text).toContain("【気象情報】（大雨・落雷）");
     expect(p.text).toContain("出典: 気象庁");
     expect([...p.text].length).toBeLessThanOrEqual(300);
     expect(p.text).not.toContain("１日"); // 全角→半角

@@ -26,7 +26,11 @@ export function mapWeatherInfoToBsafPosts(parsed: ParsedWeatherInfo): BsafPost[]
   }
 
   const timeUtc = toUtcIso(parsed.reportDateTime);
-  const header = parsed.topic ? `ℹ️【気象情報】（${parsed.topic}）` : "ℹ️【気象情報】";
+  // 都道府県名をヘッダーに入れる。本文（Head/Headline/Text）は細分名（「西部では」
+  // 「下越、中越では」等）で始まり県名を含まないことがあるため、投稿から県が消えないようにする。
+  const header = parsed.topic
+    ? `ℹ️【${pref.name}気象情報】（${parsed.topic}）`
+    : `ℹ️【${pref.name}気象情報】`;
   const body = truncate(normalizeBodyText(parsed.headlineText.trim()), MAX_BODY_LEN);
 
   const text = [header, "", body, "", SOURCE_LINE].join("\n");
