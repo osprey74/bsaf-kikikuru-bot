@@ -1,14 +1,14 @@
 {
   "bsaf_schema": "1.0",
-  "updated_at": "2026-05-31T00:00:00Z",
+  "updated_at": "2026-08-01T00:00:00Z",
   "self_url": "https://raw.githubusercontent.com/osprey74/bsaf-kikikuru-bot/main/bot-definition.json",
 
   "bot": {
     "handle": "bsaf-kikikuru-bot.bsky.social",
     "did": "did:plc:kxwz5cz7o6g4jlmxh6doyfsm",
-    "name": "気象警報・注意報Bot（非公式）",
-    "description": "気象庁の新気象警報・注意報（Ｒ０６）VPWW55〜61 を BSAF v1 タグ付きで配信。大雨・土砂・高潮・暴風・波浪・大雪・その他の各現象について、警戒レベル（Lv2〜Lv5）または警報級・注意報級・特別警報級および解除を都道府県別に配信します。",
-    "source": "気象庁 防災情報XML（VPWW55〜61 気象警報・注意報Ｒ０６）",
+    "name": "気象庁 気象防災情報Bot（非公式）",
+    "description": "気象庁の防災情報XMLを自動配信するBot（非公式）。気象警報・注意報（大雨/土砂/高潮/暴風/波浪/大雪/雷ほか、警戒レベルＲ０６）に加え、台風・線状降水帯・記録的短時間大雨・指定河川洪水予報・竜巻注意情報・土砂災害警戒情報・府県気象情報など「気象」系の防災情報を包括的に配信します。地震・津波・噴火などは @jma-alert-bot（地震・火山・津波Bot）が担当します。",
+    "source": "気象庁 防災情報XML",
     "source_url": "https://www.data.jma.go.jp/developer/xml/feed/"
   },
 
