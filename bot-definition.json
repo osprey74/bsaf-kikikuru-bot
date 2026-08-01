@@ -33,6 +33,8 @@
         { "value": "icing-warning",           "label": "着氷" },
         { "value": "snow-accretion-warning",  "label": "着雪" },
         { "value": "flood-warning",           "label": "洪水（指定河川洪水予報）" },
+        { "value": "linear-rainband-warning", "label": "線状降水帯" },
+        { "value": "significant-snowfall-warning", "label": "顕著な大雪" },
         { "value": "other-warning",           "label": "その他" }
       ]
     },
