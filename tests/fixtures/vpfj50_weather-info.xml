@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://xml.kishou.go.jp/jmaxml1/" xmlns:jmx="http://xml.kishou.go.jp/jmaxml1/" xmlns:jmx_add="http://xml.kishou.go.jp/jmaxml1/addition1/">
+<Control>
+<Title>府県気象情報</Title>
+<DateTime>2026-07-31T23:59:18Z</DateTime>
+<Status>通常</Status>
+<EditorialOffice>盛岡地方気象台</EditorialOffice>
+<PublishingOffice>盛岡地方気象台</PublishingOffice>
+</Control>
+<Head xmlns="http://xml.kishou.go.jp/jmaxml1/informationBasis1/">
+<Title>岩手県気象解説情報（大雨・落雷）</Title>
+<ReportDateTime>2026-08-01T08:59:00+09:00</ReportDateTime>
+<TargetDateTime>2026-08-01T08:59:00+09:00</TargetDateTime>
+<EventID>FJPDC260011</EventID>
+<InfoType>発表</InfoType>
+<Serial>4</Serial>
+<InfoKind>同一現象用平文情報</InfoKind>
+<InfoKindVersion>1.0_0</InfoKindVersion>
+<Headline>
+<Text>岩手県では、低気圧や前線の影響により、大雨となっています。１日夕方にかけて、内陸では大雨による土砂災害に厳重に警戒してください。また、内陸と沿岸北部では、１日夕方にかけて低い土地の浸水や河川の増水や氾濫に警戒してください。</Text>
+</Headline>
+</Head>
+<Body xmlns="http://xml.kishou.go.jp/jmaxml1/body/meteorology1/">
+<Notice/>
+<Comment>
+<Text type="本文">［気象概況］
+　低気圧が日本海にあって、前線が東北地方へのびています。この低気圧は、２日にかけて東北地方を通過し、日本の東へ進む見込みです。前線や低気圧に向かって暖かく湿った空気が流れ込み、大気の状態が不安定となっています。
+　このため、岩手県では、大気の状態が不安定となり、雷を伴って激しい雨が降り、大雨となる見込みです。
+
+［雨の予想］
+１日に予想される１時間降水量は多い所で、
+　　内陸　　　３０ミリ
+　　沿岸北部　３０ミリ
+　　沿岸南部　２０ミリ
+２日に予想される１時間降水量は多い所で、
+　　内陸　　　１５ミリ
+　　沿岸北部　１５ミリ
+　　沿岸南部　１５ミリ
+１日９時から２日９時までに予想される２４時間降水量は多い所で、
+　　内陸　　　１００ミリ
+　　沿岸北部　　８０ミリ
+　　沿岸南部　　８０ミリ
+
+［防災事項］
+　内陸では、１日夕方にかけて、大雨による土砂災害に厳重に警戒してください。内陸と沿岸北部では、１日夕方にかけて、低い土地の浸水や河川の増水や氾濫に警戒してください。また、岩手県では、１日夜遅くにかけて、落雷や突風にも注意してください。
+
+［補足事項］
+今後発表する防災気象情報に留意してください。
+土砂災害や浸水害、洪水害のキキクルに関しては「気象庁ホームページ」などを確認してください。
+次の「岩手県気象解説情報（大雨・落雷）」は、１日１６時３０分頃に発表する予定です。</Text>
+</Comment>
+</Body>
+</Report>

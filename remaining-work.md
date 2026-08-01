@@ -108,7 +108,9 @@
   - [ ] 顕著な大雪・線状降水帯「発生」の実電文サンプル取得（冬季・発生時、現状フィクスチャなし）
 - [x] 台風情報（VPTW60 台風解析・予報）新設 — `parsers/typhoon.ts` / `bsaf/typhoonMapper.ts`、`type:typhoon`・`value:`強さ階級（violent/very-strong/strong/tropical-storm）・`target:jp`（全国）（2026-08-01 実装・テスト追加）
   - [ ] 暴風域に入る確率（VPTA50）新設 — 見送り中（1.8MB・全市町村時系列）
-- [ ] 気象情報（府県 VPFJ50 ／ 地方 VPCJ50 ／ 全般 VPZJ50）新設 — 警報前段の見通し
+- [x] 気象情報（府県 VPFJ50）新設 — `parsers/weatherInfo.ts` / `bsaf/weatherInfoMapper.ts`、`type:weather-info`・`value:info`・都道府県 target（2026-08-01 実装・テスト追加）
+  - [ ] 地方（VPCJ50）・全般（VPZJ50）気象情報 — 内容重複回避のため当面見送り
+  - [ ] 北海道細分（府県予報区が都道府県名で始まらない）電文の target 解決
 - [ ] 熱中症警戒アラート（VPFT50）新設（要判断・高頻度）
 - [ ] 竜巻注意情報（VPHW50/51）を JMABot から移管
 - [ ] 土砂災害警戒情報（VXWW50）を JMABot から移管

@@ -36,6 +36,7 @@
         { "value": "linear-rainband-warning", "label": "線状降水帯" },
         { "value": "significant-snowfall-warning", "label": "顕著な大雪" },
         { "value": "typhoon",                 "label": "台風" },
+        { "value": "weather-info",            "label": "気象情報（見通し・解説）" },
         { "value": "other-warning",           "label": "その他" }
       ]
     },
@@ -54,7 +55,8 @@
         { "value": "violent",         "label": "台風: 猛烈な" },
         { "value": "very-strong",     "label": "台風: 非常に強い" },
         { "value": "strong",          "label": "台風: 強い" },
-        { "value": "tropical-storm",  "label": "台風: それ以外" }
+        { "value": "tropical-storm",  "label": "台風: それ以外" },
+        { "value": "info",            "label": "情報（気象情報・見通し）" }
       ]
     },
     {

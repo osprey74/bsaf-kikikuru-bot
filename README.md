@@ -31,6 +31,7 @@ This is a reference bot implementation for the [BSAF protocol](https://github.co
 | VXKO50–70 | Designated-river flood forecasts | Lv5 flooding occurring / Lv4 flooding danger / Lv3 flooding warning / Lv2 flooding advisory + cancellation |
 | VPBS50 | Weather disaster-prevention briefing | Linear precipitation band (imminent = Lv4 / occurring = Lv5) / significant heavy snowfall (Lv4) |
 | VPTW60 | Typhoon analysis & forecast | Typhoon current status (number, intensity, central pressure, max wind, position, track, storm-wind area) |
+| VPFJ50 | Prefectural weather information | Pre-warning outlook / commentary (plain-text info on heavy rain, thunder, high temperature, etc.) |
 <!-- markdownlint-enable MD060 -->
 
 Per the BSAF philosophy — **provide as much information as possible, let the client filter** — all phenomena, all alert levels, and cancellations are published.
