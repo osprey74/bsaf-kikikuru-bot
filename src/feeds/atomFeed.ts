@@ -46,6 +46,15 @@ export const TARGET_CODES = new Set([
   "VPWW61", // 気象警報・注意報（Ｒ０６）（その他注意報）
 ]);
 
+/**
+ * 指定河川洪水予報（VXKO50〜70）。予報区ごとにコード末尾が異なるため
+ * 完全一致集合ではなく "VXKO" プレフィックスで判定する。
+ * 旧様式気象警報の洪水は VPWW53/54 側で経過措置扱いのため、ここでは氾濫情報系のみ対象。
+ */
+export function isFloodCode(code: string): boolean {
+  return code.startsWith("VXKO");
+}
+
 export const FEED_URL = "https://www.data.jma.go.jp/developer/xml/feed/extra.xml";
 
 /** 気象庁サーバ向けの最低限の User-Agent（無設定だと弾かれることがある） */
@@ -114,5 +123,8 @@ export async function fetchText(url: string): Promise<string> {
 export async function fetchTargetEntries(): Promise<AtomEntry[]> {
   const feedXml = await fetchText(FEED_URL);
   const all = parseAtomFeed(feedXml);
-  return all.filter((e) => TARGET_CODES.has(extractCode(e.id)));
+  return all.filter((e) => {
+    const code = extractCode(e.id);
+    return TARGET_CODES.has(code) || isFloodCode(code);
+  });
 }

@@ -86,7 +86,8 @@
 
 ## Phase R8 — 将来課題
 
-- [ ] 氾濫情報対応（VXKOii / VXSUii）
+- [x] 指定河川洪水予報（VXKO50〜70）対応 — `parsers/floodForecast.ts` / `bsaf/floodMapper.ts`、`type:flood-warning`、Lv2〜Lv5＋解除、都道府県 target・河川名本文列挙（2026-08-01 実装・ライブ検証・テスト追加）
+- [ ] 中小河川の浸水想定詳細（VXSUii）対応
 - [ ] Lv1 早期注意情報対応（VPFD61 / VPFW60）
 - [ ] VPWP50（時系列情報）対応
 - [ ] VPWS50（集約通報）対応
@@ -96,3 +97,16 @@
 - [x] CriteriaPeriod の Lv4 到達予想時間を本文反映（2026-06-03 完了、VPWW57 サンプル対応時）
 - [ ] VPWW57 高潮予報区間の本文補足記載のさらなる充実
 - [ ] WaveHeight（うちあげ高水位）／EventPart の実電文サンプル取得（Lv3〜Lv5 高潮警報級 or 特別警報級発表時）
+
+## Phase R9 — 2ボット役割再編（気象系の集約）
+
+> 方針：JMABot＝地象系（地震・津波・噴火）／KikikuruBot＝気象系。詳細は `bsaf-jma-bot/remaining-work.md` の再編ロードマップ参照。
+
+- [x] 洪水（指定河川洪水予報 VXKO）新設 ★（Phase R8 で完了）
+- [ ] 線状降水帯・記録的短時間大雨（VPBS50 府県気象防災速報）新設
+- [ ] 台風情報（進路・予報 VPTW60 ／ 暴風域に入る確率 VPTA50）新設
+- [ ] 気象情報（府県 VPFJ50 ／ 地方 VPCJ50 ／ 全般 VPZJ50）新設 — 警報前段の見通し
+- [ ] 熱中症警戒アラート（VPFT50）新設（要判断・高頻度）
+- [ ] 竜巻注意情報（VPHW50/51）を JMABot から移管
+- [ ] 土砂災害警戒情報（VXWW50）を JMABot から移管
+- [ ] 記録的短時間大雨（VPOA50）を移管（VPBS50 移行と整合）

@@ -6,9 +6,12 @@
  * （気象警報・注意報Ｒ０６）電文を BSAF タグ付きで Bluesky に投稿する。
  */
 
-import { fetchTargetEntries, fetchText } from "./feeds/atomFeed";
+import { fetchTargetEntries, fetchText, extractCode, isFloodCode } from "./feeds/atomFeed";
 import { parseR06WarningXml } from "./parsers/r06Warning";
 import { mapToBsafPosts } from "./bsaf/r06Mapper";
+import { parseFloodForecastXml } from "./parsers/floodForecast";
+import { mapFloodToBsafPosts } from "./bsaf/floodMapper";
+import type { BsafPost } from "./bsaf/r06Mapper";
 import { isAlreadyPosted, markPosted, clearExpired } from "./state/warningState";
 import { post as atpPost } from "./atproto/client";
 
@@ -46,10 +49,19 @@ async function runCycle(): Promise<void> {
       continue;
     }
 
-    const parsed = parseR06WarningXml(xml);
-    if (!parsed) continue;
+    // 電文コードで洪水（VXKO）と気象警報（VPWW55-61）を振り分ける
+    const code = extractCode(entry.id);
+    let posts: BsafPost[];
+    if (isFloodCode(code)) {
+      const parsed = parseFloodForecastXml(xml);
+      if (!parsed) continue;
+      posts = mapFloodToBsafPosts(parsed);
+    } else {
+      const parsed = parseR06WarningXml(xml);
+      if (!parsed) continue;
+      posts = mapToBsafPosts(parsed);
+    }
 
-    const posts = mapToBsafPosts(parsed);
     if (posts.length === 0) {
       console.info(`[Poller] 生成ポストなし: ${entry.id}`);
       continue;
@@ -83,10 +95,10 @@ async function runCycle(): Promise<void> {
 // ============================================================
 
 export function startPoller(): void {
-  const target = ["VPWW55", "VPWW56", "VPWW57", "VPWW58", "VPWW59", "VPWW60", "VPWW61"].join(", ");
+  const target = ["VPWW55", "VPWW56", "VPWW57", "VPWW58", "VPWW59", "VPWW60", "VPWW61", "VXKO(指定河川洪水予報)"].join(", ");
   console.info(`[Poller] 開始 — 対象: ${target}`);
   console.info(`[Poller] 間隔: ${POLL_INTERVAL_MS / 1000}秒`);
-  console.info("[Poller] 新気象警報・注意報（Ｒ０６）— 全現象配信モード");
+  console.info("[Poller] 新気象警報・注意報（Ｒ０６）＋指定河川洪水予報 — 全現象配信モード");
 
   // 初回即時実行
   runCycle().catch(console.error);

@@ -12,7 +12,7 @@
 
 ## Overview
 
-bsaf-kikikuru-bot monitors the Japan Meteorological Agency (JMA) public XML feed for the new "R06" weather warnings and advisories — telegrams VPWW55–61, operational since 2026-05-29 — and automatically posts them to Bluesky with structured BSAF tags. BSAF-compatible clients can filter posts by phenomenon, alert level, and prefecture.
+bsaf-kikikuru-bot monitors the Japan Meteorological Agency (JMA) public XML feed for the new "R06" weather warnings and advisories — telegrams VPWW55–61, operational since 2026-05-29 — and designated-river flood forecasts (VXKO), automatically posting them to Bluesky with structured BSAF tags. BSAF-compatible clients can filter posts by phenomenon, alert level, and prefecture.
 
 This is a reference bot implementation for the [BSAF protocol](https://github.com/osprey74/bsaf-protocol), complementary to [bsaf-jma-bot](https://github.com/osprey74/bsaf-jma-bot) (which handles earthquakes, tsunamis, volcanic eruptions, and transitional weather telegrams).
 
@@ -28,11 +28,14 @@ This is a reference bot implementation for the [BSAF protocol](https://github.co
 | VPWW59 | Wave warnings & advisories | Wave emergency / Wave warning / Wave advisory |
 | VPWW60 | Heavy snow warnings & advisories | Snow emergency / Snow warning / Snow advisory |
 | VPWW61 | Other advisories | Thunderstorm / Snowmelt / Dense fog / Dry air / Avalanche / Low temperature / Frost / Icing / Snow accretion |
+| VXKO50–70 | Designated-river flood forecasts | Lv5 flooding occurring / Lv4 flooding danger / Lv3 flooding warning / Lv2 flooding advisory + cancellation |
 <!-- markdownlint-enable MD060 -->
 
 Per the BSAF philosophy — **provide as much information as possible, let the client filter** — all phenomena, all alert levels, and cancellations are published.
 
-**Flood/inundation telegrams (VXKOii / VXSUii) and Level 1 early-action advisories (VPFD61 / VPFW60) are currently out of scope** (planned for a separate future bot).
+Designated-river flood forecasts (VXKO) are published as 1 post = 1 prefecture × 1 alert level, with the affected river names listed in the post body.
+
+**Inundation-area detail telegrams (VXSUii) and Level 1 early-action advisories (VPFD61 / VPFW60) are currently out of scope** (planned for a separate future bot).
 
 ## Posting Granularity
 

@@ -32,7 +32,7 @@
         { "value": "frost-warning",           "label": "霜" },
         { "value": "icing-warning",           "label": "着氷" },
         { "value": "snow-accretion-warning",  "label": "着雪" },
-        { "value": "flood-warning",           "label": "洪水（経過措置）" },
+        { "value": "flood-warning",           "label": "洪水（指定河川洪水予報）" },
         { "value": "other-warning",           "label": "その他" }
       ]
     },
