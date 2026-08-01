@@ -18,7 +18,9 @@
       "label": "情報種別",
       "options": [
         { "value": "heavy-rain-warning",      "label": "大雨" },
-        { "value": "landslide-warning",       "label": "土砂災害" },
+        { "value": "heavy-rain",              "label": "記録的短時間大雨" },
+        { "value": "landslide-warning",       "label": "土砂災害（警戒レベル情報・警戒情報）" },
+        { "value": "tornado-warning",         "label": "竜巻注意情報" },
         { "value": "storm-surge-warning",     "label": "高潮" },
         { "value": "wind-warning",            "label": "暴風・暴風雪・強風" },
         { "value": "wave-warning",            "label": "波浪" },

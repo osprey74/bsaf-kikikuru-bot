@@ -73,3 +73,21 @@ export function prefectureFromMunicipalityCode(
   if (!municipalityCode || municipalityCode.length < 2) return null;
   return PREF_BY_CODE.get(municipalityCode.slice(0, 2)) ?? null;
 }
+
+const PREF_BY_NAME = new Map(PREFECTURES.map((p) => [p.name, p]));
+
+/** 都道府県名の完全一致で都道府県情報を返す。未知は null。 */
+export function prefectureByName(name: string): Prefecture | null {
+  return PREF_BY_NAME.get(name) ?? null;
+}
+
+/**
+ * タイトル等の接頭辞に一致する都道府県を返す（例: "岩手県レベル４…" → 岩手県）。
+ * 都道府県名は互いに接頭辞関係にないため単純な startsWith で一意に判定できる。
+ */
+export function prefectureByTitlePrefix(title: string): Prefecture | null {
+  for (const p of PREFECTURES) {
+    if (title.startsWith(p.name)) return p;
+  }
+  return null;
+}

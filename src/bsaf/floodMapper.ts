@@ -141,7 +141,9 @@ function buildActivePost(
   return {
     text: normalizeBodyText(lines.join("\n")),
     tags: buildTags(value, timeUtc, target),
-    dedupeKey: `flood:${target}:${value}`,
+    // 発表時刻を含め、同一都道府県・同一レベルの別イベント（別河川・別発表）が
+    // 30分ウィンドウで誤って重複抑制されないようにする。
+    dedupeKey: `flood:${target}:${value}:${timeUtc}`,
   };
 }
 
@@ -163,7 +165,7 @@ function buildCancellationPost(
   return {
     text: normalizeBodyText(lines.join("\n")),
     tags: buildTags("cancelled", timeUtc, target),
-    dedupeKey: `flood:${target}:cancelled`,
+    dedupeKey: `flood:${target}:cancelled:${timeUtc}`,
   };
 }
 

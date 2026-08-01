@@ -112,6 +112,8 @@
   - [ ] 地方（VPCJ50）・全般（VPZJ50）気象情報 — 内容重複回避のため当面見送り
   - [ ] 北海道細分（府県予報区が都道府県名で始まらない）電文の target 解決
 - [ ] 熱中症警戒アラート（VPFT50）新設（要判断・高頻度）
-- [ ] 竜巻注意情報（VPHW50/51）を JMABot から移管
-- [ ] 土砂災害警戒情報（VXWW50）を JMABot から移管
-- [ ] 記録的短時間大雨（VPOA50）を移管（VPBS50 移行と整合）
+- [x] 竜巻注意情報（VPHW50/51）を JMABot から移管 — `parsers/tornadoWarning.ts` / `bsaf/tornadoMapper.ts`、type:tornado-warning・value:warning（2026-08-01）
+- [x] 土砂災害警戒情報（VXWW50）を JMABot から移管 — `parsers/landslideAlert.ts` / `bsaf/landslideAlertMapper.ts`、type:landslide-warning・value:warning/cancelled（R06 土砂 VPWW56 とは dedup 分離）（2026-08-01）
+- [x] 記録的短時間大雨を移管 — VPBS50 サブ種別を有効化（bosaiMapper）、type:heavy-rain・value:warning（2026-08-01）
+- [ ] JMABot 側の該当パーサー削除（tornado/landslide/heavy-rain）と協調デプロイ
+- [ ] 移管完了後の告知投稿（`g:\dev\bluesky-posts-bot-reorg.md`）

@@ -16,24 +16,26 @@ import type { ParsedBosaiReport } from "../parsers/bosaiReport";
 import { prefectureFromMunicipalityCode, PREFECTURES } from "./prefectures";
 import type { BsafPost } from "./r06Mapper";
 
-type Level = "level4" | "level5";
+type BosaiValue = "level4" | "level5" | "warning";
 
 interface SubKindMapping {
   bsafType: string;
-  value: Level;
+  value: BosaiValue;
   headerLabel: string;
 }
 
 const SOURCE_LINE = "出典: 気象庁 https://www.jma.go.jp/bosai/warning/";
 
-const LEVEL_ICON: Record<Level, string> = {
+const VALUE_ICON: Record<BosaiValue, string> = {
   level4: "🟪🟪🟪🟪⬜",
   level5: "⬛⬛⬛⬛⬛",
+  warning: "🌧️",
 };
 
 /**
  * Head/Title の括弧内サブ種別を BSAF type/value に対応づける。
- * 対象外（記録的短時間大雨・短文形式気象情報等）は null を返しスキップする。
+ * 対象外（短文形式気象情報等）は null を返しスキップする。
+ * 記録的短時間大雨は bsaf-jma-bot から移管し type:heavy-rain・value:warning を踏襲する。
  */
 function mapSubKind(subKind: string): SubKindMapping | null {
   if (subKind.includes("線状降水帯")) {
@@ -45,6 +47,9 @@ function mapSubKind(subKind: string): SubKindMapping | null {
   }
   if (subKind.includes("顕著な大雪") || subKind.includes("大雪")) {
     return { bsafType: "significant-snowfall-warning", value: "level4", headerLabel: "顕著な大雪" };
+  }
+  if (subKind.includes("記録的短時間大雨")) {
+    return { bsafType: "heavy-rain", value: "warning", headerLabel: "記録的短時間大雨" };
   }
   return null;
 }
@@ -64,12 +69,14 @@ export function mapBosaiToBsafPosts(parsed: ParsedBosaiReport): BsafPost[] {
 
   const timeUtc = toUtcIso(parsed.reportDateTime);
   const body = normalizeBodyText(parsed.headlineText.trim());
-  const levelNum = mapping.value.replace("level", "");
-  const icon = LEVEL_ICON[mapping.value];
+  const icon = VALUE_ICON[mapping.value];
+  const levelSuffix = mapping.value.startsWith("level")
+    ? `（警戒レベル${mapping.value.replace("level", "")}相当）`
+    : "";
 
   return targets.map((target) => {
     const lines = [
-      `${icon}【${mapping.headerLabel}】（警戒レベル${levelNum}相当）`,
+      `${icon}【${mapping.headerLabel}】${levelSuffix}`,
       "",
       body,
       "",
@@ -85,7 +92,9 @@ export function mapBosaiToBsafPosts(parsed: ParsedBosaiReport): BsafPost[] {
         `target:${target}`,
         "source:jma",
       ],
-      dedupeKey: `${mapping.bsafType}:${target}:${mapping.value}`,
+      // 発表時刻を含め、同一都道府県の別イベント（別地点の記録的短時間大雨・
+      // 線状降水帯の別発表）が30分ウィンドウで誤って重複抑制されないようにする。
+      dedupeKey: `${mapping.bsafType}:${target}:${mapping.value}:${timeUtc}`,
     };
   });
 }

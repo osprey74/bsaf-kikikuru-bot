@@ -33,7 +33,7 @@ describe("VPBS50 → BsafPost（線状降水帯 直前予測 = level4）", () =>
   const posts = parseAndMap("vpbs50_linear-rainband_imminent.xml");
 
   test("東京都 level4 の投稿が 1 件生成される", () => {
-    const p = posts.find((p) => p.dedupeKey === "linear-rainband-warning:jp-tokyo:level4");
+    const p = posts.find((p) => p.dedupeKey.startsWith("linear-rainband-warning:jp-tokyo:level4"));
     expect(p).toBeDefined();
   });
 
@@ -57,9 +57,11 @@ describe("VPBS50 → BsafPost（線状降水帯 直前予測 = level4）", () =>
   });
 });
 
-describe("VPBS50 → BsafPost（記録的短時間大雨はスキップ）", () => {
-  test("記録的短時間大雨は投稿を生成しない（JMABot VPOA50 との二重投稿回避）", () => {
+describe("VPBS50 → BsafPost（記録的短時間大雨は移管により配信）", () => {
+  test("記録的短時間大雨は type:heavy-rain / value:warning で配信される（JMABot から移管）", () => {
     const posts = parseAndMap("vpbs50_record-rain_skip.xml");
-    expect(posts.length).toBe(0);
+    expect(posts.length).toBe(1);
+    expect(posts[0].tags).toContain("type:heavy-rain");
+    expect(posts[0].tags).toContain("value:warning");
   });
 });

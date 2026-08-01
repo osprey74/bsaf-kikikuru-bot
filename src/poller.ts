@@ -17,6 +17,10 @@ import { parseTyphoonXml } from "./parsers/typhoon";
 import { mapTyphoonToBsafPosts } from "./bsaf/typhoonMapper";
 import { parseWeatherInfoXml } from "./parsers/weatherInfo";
 import { mapWeatherInfoToBsafPosts } from "./bsaf/weatherInfoMapper";
+import { parseTornadoWarningXml } from "./parsers/tornadoWarning";
+import { mapTornadoToBsafPosts } from "./bsaf/tornadoMapper";
+import { parseLandslideAlertXml } from "./parsers/landslideAlert";
+import { mapLandslideAlertToBsafPosts } from "./bsaf/landslideAlertMapper";
 import type { BsafPost } from "./bsaf/r06Mapper";
 import { isAlreadyPosted, markPosted, clearExpired } from "./state/warningState";
 import { post as atpPost } from "./atproto/client";
@@ -74,6 +78,14 @@ async function runCycle(): Promise<void> {
       const parsed = parseWeatherInfoXml(xml);
       if (!parsed) continue;
       posts = mapWeatherInfoToBsafPosts(parsed);
+    } else if (code === "VPHW50" || code === "VPHW51") {
+      const parsed = parseTornadoWarningXml(xml);
+      if (!parsed) continue;
+      posts = mapTornadoToBsafPosts(parsed);
+    } else if (code === "VXWW50") {
+      const parsed = parseLandslideAlertXml(xml);
+      if (!parsed) continue;
+      posts = mapLandslideAlertToBsafPosts(parsed);
     } else {
       const parsed = parseR06WarningXml(xml);
       if (!parsed) continue;

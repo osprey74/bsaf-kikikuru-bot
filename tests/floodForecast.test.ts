@@ -42,12 +42,12 @@ describe("VXKO → BsafPost（Lv2 氾濫注意）", () => {
   const posts = parseAndMap("vxko_flood_lv2.xml");
 
   test("山形県 level2 の投稿が 1 件生成される", () => {
-    const p = posts.find((p) => p.dedupeKey === "flood:jp-yamagata:level2");
+    const p = posts.find((p) => p.dedupeKey.startsWith("flood:jp-yamagata:level2"));
     expect(p).toBeDefined();
   });
 
   test("BSAF タグ 6 件が揃う", () => {
-    const p = posts.find((p) => p.dedupeKey === "flood:jp-yamagata:level2")!;
+    const p = posts.find((p) => p.dedupeKey.startsWith("flood:jp-yamagata:level2"))!;
     expect(p.tags).toContain("bsaf:v1");
     expect(p.tags).toContain("type:flood-warning");
     expect(p.tags).toContain("value:level2");
@@ -57,7 +57,7 @@ describe("VXKO → BsafPost（Lv2 氾濫注意）", () => {
   });
 
   test("本文に河川名・氾濫注意情報・出典が含まれる", () => {
-    const p = posts.find((p) => p.dedupeKey === "flood:jp-yamagata:level2")!;
+    const p = posts.find((p) => p.dedupeKey.startsWith("flood:jp-yamagata:level2"))!;
     expect(p.text).toContain("氾濫注意情報");
     expect(p.text).toContain("鮭川");
     expect(p.text).toContain("出典: 気象庁");
@@ -70,7 +70,7 @@ describe("VXKO → BsafPost（Lv2 氾濫注意）", () => {
   });
 
   test("全角数字が半角へ正規化される", () => {
-    const p = posts.find((p) => p.dedupeKey === "flood:jp-yamagata:level2")!;
+    const p = posts.find((p) => p.dedupeKey.startsWith("flood:jp-yamagata:level2"))!;
     expect(p.text).toContain("警戒レベル2相当");
     expect(p.text).not.toContain("警戒レベル２相当");
   });
@@ -80,7 +80,7 @@ describe("VXKO → BsafPost（Lv3 氾濫警戒）", () => {
   const posts = parseAndMap("vxko_flood_lv3.xml");
 
   test("秋田県 level3 の投稿が生成される", () => {
-    const p = posts.find((p) => p.dedupeKey === "flood:jp-akita:level3");
+    const p = posts.find((p) => p.dedupeKey.startsWith("flood:jp-akita:level3"));
     expect(p).toBeDefined();
     expect(p!.tags).toContain("value:level3");
     expect(p!.text).toContain("氾濫警戒情報");
@@ -91,7 +91,7 @@ describe("VXKO → BsafPost（解除）", () => {
   const posts = parseAndMap("vxko_flood_cancellation.xml");
 
   test("解除（cancelled）の投稿が生成される", () => {
-    const p = posts.find((p) => p.dedupeKey === "flood:jp-akita:cancelled");
+    const p = posts.find((p) => p.dedupeKey.startsWith("flood:jp-akita:cancelled"));
     expect(p).toBeDefined();
     expect(p!.tags).toContain("value:cancelled");
     expect(p!.text).toContain("解除");
